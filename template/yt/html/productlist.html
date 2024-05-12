@@ -12,7 +12,7 @@
               <div class="col-12 col-sm-2 col-md-1">极数：</div>
                 <div class="col-12 col-sm-10 col-md-11">
                    {pboot:selectall field=ext_type text=全部  class='mb-3 btn btn-light' active='mb-3 btn btn-info'}
-                   {pboot:select field=ext_pro_jishu}
+                   {pboot:select field=ext_jishu}
                        <a href= "[select:link]" class="mb-3 btn {pboot:if('[select:value]'=='[select:current]')}btn-info{else}btn-light{/pboot:if}">[select:value]</a>  
                    {/pboot:select}
                </div>
@@ -31,7 +31,7 @@
            		<div class="col-12 col-sm-2 col-md-1">电流：</div>
                 <div class="col-12 col-sm-10 col-md-11">
                    {pboot:selectall field=ext_dianliu text=全部  class='mb-3 btn btn-light' active='mb-3 btn btn-info'}
-                   {pboot:select field=ext_elec}
+                   {pboot:select field=ext_dianliu}
                       <a href= "[select:link]" class="mb-3 btn {pboot:if('[select:value]'=='[select:current]')}btn-info{else}btn-light{/pboot:if}">[select:value]</a>  
                    {/pboot:select}
                </div>
