@@ -43,17 +43,19 @@
 <!--        <div class="col-4 p-0 text-center border-right">-->
 <!--            <a target="_blank" href="http://wpa.qq.com/msgrd?v=3&uin={pboot:companyqq}&site=qq&menu=yes" class="text-light d-block pt-3 pb-3"><i class="fa fa-qq" aria-hidden="true"></i> 在线咨询</a>-->
 <!--        </div>-->
-<!--        <div class="col-4 p-0 text-center">-->
-<!--			{pboot:sort scode=1}-->
-<!--            <a href="[sort:link]" class="text-light d-block pt-3 pb-3"><i class="fa fa-location-arrow" aria-hidden="true"></i> [sort:name]</a>-->
-<!--			{/pboot:sort}-->
-<!--        </div>-->
+
         <div class="col-4 p-0 text-center border-right">
             <a target="_blank" href="https://youtaidq.1688.com" class="text-light d-block pt-3 pb-3"><i class="fa fa-qq" aria-hidden="true"></i> 阿里巴巴站点</a>
         </div>
 <!--        <div class="col-4 p-0 text-center">-->
 <!--            <a target="_blank" href="https://shop179542518.taobao.com/" class="text-light d-block pt-3 pb-3"><i class="fa fa-qq" aria-hidden="true"></i> 淘宝店铺</a>-->
 <!--        </div>-->
+
+        <div class="col-4 p-0 text-center">
+            {pboot:sort scode=1}
+            <a href="[sort:link]" class="text-light d-block pt-3 pb-3"><i class="fa fa-location-arrow" aria-hidden="true"></i> [sort:name]</a>
+            {/pboot:sort}
+        </div>
     </div>
 </div>
 
@@ -98,7 +100,7 @@
         	<h3><i class="fa fa-weixin" aria-hidden="true"></i>微信扫一扫<span class="remove"><i class="fa fa-remove"></i></span></h3>
            	<p><img src="{pboot:companyweixin} " width="100%"></p>
         </dt>
-		<dd><i class="fa fa-commenting-o" aria-hidden="true"></i></dd>
+		<dd><i class="fa fa-weixin" aria-hidden="true"></i></dd>
 		<dd>微信联系</dd>
 	</dl>
 
