@@ -356,7 +356,13 @@ function parse_info_tpl($info_tpl, $string, $jump_url = null, $time = 0)
             $timeout_js = '';
         }
         $tpl_content = str_replace('{js}', $timeout_js, $tpl_content);
-        $tpl_content = str_replace('{info}', $string, $tpl_content);
+//         $tpl_content = str_replace('{info}', $string, $tpl_content);
+        if (strpos($string, '未匹配到本域名') !== false) {
+            $tpl_content = str_replace('{info}', '您当前域名未授权，请联系开发者获取授权！', $tpl_content);
+        } else {
+            $tpl_content = str_replace('{info}', $string, $tpl_content);
+        }
+
         $tpl_content = str_replace('{url}', $jump_url, $tpl_content);
         $tpl_content = str_replace('{time}', $time, $tpl_content);
         $tpl_content = str_replace('{sitedir}', SITE_DIR, $tpl_content);
