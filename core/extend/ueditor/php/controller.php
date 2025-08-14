@@ -4,7 +4,7 @@
 // date_default_timezone_set("Asia/chongqing");
 // error_reporting(E_ERROR);
 // header("Content-Type: text/html; charset=utf-8");
-require '../../../init.php';
+require_once '../../../init.php';
 error_reporting(0);
 
 // 启动会话

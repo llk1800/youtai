@@ -259,5 +259,10 @@ class Mysqli implements Builder
         // error('执行SQL发生错误！' . $err . '语句：' . $sql);
         error('执行SQL发生错误！' . $err);
     }
+
+    //返回对象结果集
+    public function fetchQuery($obj){
+        return $obj->fetch_all();
+    }
 }
 

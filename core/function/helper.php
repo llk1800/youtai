@@ -49,6 +49,7 @@ function homeurl($url, $suffix = null, $qs = null)
 function error($string, $jump_url = null, $time = 2)
 {
     @ob_clean();
+    http_response_code(404);
     if (! $string)
         $string = '未知错误！';
     
@@ -443,6 +444,7 @@ function filter($varname, $condition)
         $data = trim($data); // 去空格
         $data = preg_replace_r('/(x3c)|(x3e)/', '', $data); // 去十六进制括号
         $data = preg_replace_r('/pboot:if/i', 'pboot@if', $data); // 过滤插入cms条件语句
+        $data = preg_replace_r('/pboot:sql/i', 'pboot@sql', $data); // 过滤插入cms条件语句
         $data = preg_replace_r('/GET\[/i', 'GET@[', $data);
         $data = preg_replace_r('/POST\[/i', 'POST@[', $data);
     }
@@ -555,7 +557,7 @@ function request($name, $type = null, $require = false, $vartext = null, $defaul
  * @param string $path
  *            路径，默认站点目录
  */
-function cookie($name, $value = null, $expire = null, $path = null, $domain = null, $secure = null, $httponly = true)
+function cookie($name, $value = null, $expire = null, $path = null, $domain = null, $secure = null, $httponly = false)
 {
     if (! is_null($value)) {
         $path = SITE_DIR . '/';
@@ -720,8 +722,7 @@ function get_sms_balance(array $config)
 // 返回404页面,文件中可使用{info}替换提示信息
 function _404($string, $jump_url = null, $time = 2)
 {
-    header('HTTP/1.1 404 Not Found');
-    header('status: 404 Not Found');
+    http_response_code(404);
     $file_404 = ROOT_PATH . '/404.html';
     if (file_exists($file_404)) {
         echo parse_info_tpl($file_404, $string, $jump_url, $time);
@@ -729,4 +730,120 @@ function _404($string, $jump_url = null, $time = 2)
     } else {
         error($string, $jump_url, $time);
     }
+}
+
+// php对象转为数组
+function toArray($obj){
+    if($obj === null){
+        return [];
+    }else{
+        return json_decode(json_encode($obj),true);
+    }
+}
+
+//if标签比较符处理
+function symbol($matches): string
+{
+    $flag = '';
+    $symbol1 = ['&&','||'];
+    foreach ($symbol1 as $items) {
+        if (strpos($matches, $items) !== false) {
+            $arr = explode($items, $matches);
+            switch ($items) {
+                case '&&':
+                    $bool1 = compareSymbol1($arr[0]);
+                    $bool2 = compareSymbol1($arr[1]);
+                    $flag = $bool1 && $bool2 ? 'if' : 'else';
+                    break;
+                case '||':
+                    $bool1 = compareSymbol1($arr[0]);
+                    $bool2 = compareSymbol1($arr[1]);
+
+                    $flag = $bool1 || $bool2 ? 'if' : 'else';
+                    break;
+            }
+            break;
+        }
+    }
+    if(!$flag){
+        $compare = compareSymbol1($matches);
+        if($compare === true){
+            $flag = 'if';
+        }else if($compare === false){
+            $flag = 'else';
+        }
+    }
+    return $flag;
+}
+
+function compareSymbol1($str){
+    $bool = null;
+    $symbol = ['>=','<=','!=','==','>','<'];
+    foreach ($symbol as $items) {
+        if (strpos($str, $items) !== false) {
+            $arr = explode($items, $str);
+            switch ($items) {
+                case '>':
+                    $res1 = compareSymbol2($arr[0]);
+                    $res2 = compareSymbol2($arr[1]);
+                    $bool = $res1 > $res2;
+                    break;
+                case '>=':
+                    $res1 = compareSymbol2($arr[0]);
+                    $res2 = compareSymbol2($arr[1]);
+                    $bool = $res1 >= $res2;
+                    break;
+                case '!=':
+                    $res1 = compareSymbol2($arr[0]);
+                    $res2 = compareSymbol2($arr[1]);
+                    $bool = $res1 != $res2;
+                    break;
+                case '==':
+                    $res1 = compareSymbol2($arr[0]);
+                    $res2 = compareSymbol2($arr[1]);
+                    $bool = $res1 == $res2;
+                    break;
+                case '<=':
+                    $res1 = compareSymbol2($arr[0]);
+                    $res2 = compareSymbol2($arr[1]);
+                    $bool = $res1 <= $res2;
+                    break;
+                case '<':
+                    $res1 = compareSymbol2($arr[0]);
+                    $res2 = compareSymbol2($arr[1]);
+                    $bool = $res1 < $res2;
+                    break;
+            }
+            break;
+        }
+    }
+    if($bool === null){
+        $res = compareSymbol2($str);
+        if (trim($res)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return $bool;
+}
+
+function compareSymbol2($str){
+    $res = null;
+    $symbol2 = ['%'];
+    foreach ($symbol2 as $items) {
+        if (strpos($str, $items) !== false) {
+            $arr = explode($items, $str);
+            if ($items == '%') {
+                $res = $arr[0] % $arr[1];
+            }
+            break;
+        }
+    }
+    if($res === null) {
+        $str = trim($str);
+        $str = trim($str,"'");
+        $res = (string)$str;
+    }
+    return $res;
 }

@@ -12,6 +12,7 @@
 	    <li  lay-id="t7">URL规则</li>
 	    <li  lay-id="t8">标题样式</li>
 	    <li  lay-id="t9">会员配置</li>
+	    <li  lay-id="t10">远程附件配置</li>
 	  </ul>
 		  <div class="layui-tab-content">
 		  	   <div class="layui-tab-item layui-show">
@@ -45,7 +46,7 @@
 		                 <div class="layui-form-item">
 		                     <label class="layui-form-label">手机版域名绑定</label>
 		                     <div class="layui-input-inline">
-		                     	<input type="text" name="wap_domain"  value="{$configs.wap_domain.value}" placeholder="如：m.pbootcms.com"  class="layui-input">
+		                     	<input type="text" name="wap_domain"  value="{$configs.wap_domain.value}" placeholder="如：m.xxx.com"  class="layui-input">
 		                     </div>
 		                </div>
 
@@ -92,6 +93,15 @@
 		                </div>
 		                
 		                <div class="layui-form-item">
+		                     <label class="layui-form-label">记录蜘蛛访问</label>
+		                     <div class="layui-input-block">
+		                     	<input type="radio" name="spiderlog" value="1" {if([$configs.spiderlog.value]=='1'||[$configs.spiderlog.value]=='')} checked="checked" {/if} title="启用">
+								<input type="radio" name="spiderlog" value="0" {if([$configs.spiderlog.value]=='0')} checked="checked" {/if} title="禁用">
+		                     	<span class="layui-icon layui-icon-about tips" data-content="开启后自动在系统日志进行记录！"></span>
+		                     </div>
+		                </div>
+		                
+		                <div class="layui-form-item">
 		                     <label class="layui-form-label">自动转HTTPS</label>
 		                     <div class="layui-input-block">
 		                     	<input type="radio" name="to_https" value="1" {if([$configs.to_https.value]==1)} checked="checked" {/if} title="启用">
@@ -108,11 +118,11 @@
 		                     	<span class="layui-icon layui-icon-about tips" data-content="访问非主域名地址时自动跳转！"></span>
 		                     </div>
 		                </div>
-		                
+
 		                <div class="layui-form-item">
 		                     <label class="layui-form-label">网站主域名</label>
 		                     <div class="layui-input-inline">
-		                     	<input type="text" name="main_domain"  value="{$configs.main_domain.value}" placeholder="如：www.pbootcms.com"  class="layui-input">
+		                     	<input type="text" name="main_domain"  value="{$configs.main_domain.value}" placeholder="如：www.xxx.com"  class="layui-input">
 		                     </div>
 		                </div>
 		                
@@ -358,7 +368,7 @@
 	                <div class="layui-form-item">
 	                      <label class="layui-form-label">水印文字</label>
 	                     <div class="layui-input-inline">
-	                     	<input type="text" name="watermark_text" value="{$configs.watermark_text.value}" placeholder="请输入水印文字，如：PbootCMS" class="layui-input">
+	                     	<input type="text" name="watermark_text" value="{$configs.watermark_text.value}" placeholder="请输入水印文字，如：XXXCMS" class="layui-input">
 	                     </div>
 	                </div>
 					
@@ -536,27 +546,41 @@
 		                     <label class="layui-form-label">地址模式</label>
 		                     <div class="layui-input-block">
 		                     	<P>
-		                     		<input type="radio" name="url_rule_type" value="1" {if([$configs.url_rule_type.value]==1)} checked="checked" {/if} title="普通模式，类似：/index.php/product/1.html">
-		                     		<span class="layui-icon layui-icon-about tips" data-content="基本模式需要服务器支持pathinfo,特别是nginx下pathinfo要手动配置！"></span>
-		                     	</P>
-		                     	<P>
 		                     		<input type="radio" name="url_rule_type" value="2" {if([$configs.url_rule_type.value]==2)} checked="checked" {/if} title="伪静态模式，类似：/product/1.html">
 		                     		<span class="layui-icon layui-icon-about tips" data-content="伪静态时需要服务器环境的支持，并需要添加伪静态规则！"></span>
 								</P>
 		                     	<P>
-									<input type="radio" name="url_rule_type" value="3" {if([$configs.url_rule_type.value]==3||![$configs.url_rule_type.value])} checked="checked" {/if} title="兼容模式，类似：/?product/1.html">
+									<input type="radio" name="url_rule_type" value="3" {if([$configs.url_rule_type.value]==3||![$configs.url_rule_type.value])} checked="checked" {/if} title="兼容模式，首页/index.php也可正常访问，类似：/?product/1.html">
 								</P>
 		                     </div>
 		                </div>
 		                
-		               <div class="layui-form-item">
-		                     <label class="layui-form-label">栏目显示后缀</label>
+		                
+		                <div class="layui-form-item">
+		                     <label class="layui-form-label">文章路径</label>
 		                     <div class="layui-input-block">
-		                     	<input type="radio" name="url_rule_sort_suffix" value="1" {if([$configs.url_rule_sort_suffix.value]==1)} checked="checked" {/if} title="启用">
-								<input type="radio" name="url_rule_sort_suffix" value="0" {if([$configs.url_rule_sort_suffix.value]==0)} checked="checked" {/if} title="禁用">
+		                     	<P>
+		                     		<input type="radio" name="url_rule_content_path" value="0" {if(![$configs.url_rule_content_path.value])} checked="checked" {/if} title="带栏目路径，类似：/product/1.html">
+								</P>
+		                     	<P>
+									<input type="radio" name="url_rule_content_path" value="1" {if([$configs.url_rule_content_path.value]==1)} checked="checked" {/if} title="不带栏目路径，类似：/1.html">
+								</P>
 		                     </div>
 		                </div>
-		                
+
+					   <div class="layui-form-item">
+						   <label class="layui-form-label">跳转404</label>
+						   <div class="layui-input-block">
+							   <P>
+								   <input type="radio" name="url_index_404" value="1" {if([$configs.url_index_404.value]==1)} checked="checked" {/if}  title="开启404">
+								   <span class="layui-icon layui-icon-about tips" data-content="开启后访问不存在的页面直接返回404"></span>
+							   </P>
+							   <P>
+								   <input type="radio" name="url_index_404" value="0" {{if(![$configs.url_index_404.value])} checked="checked" {/if} title="关闭404(默认)">
+							   </P>
+						   </div>
+					   </div>
+
 		                <div class="layui-form-item">
 							 <div class="layui-input-block">
 							    <button class="layui-btn" lay-submit name="submit" value="urlrule">立即提交</button>
@@ -799,7 +823,6 @@
 						</div>
 	              </form>
 		  	   </div>
-		  	   
 		  </div>
 	 </div>
 </div>

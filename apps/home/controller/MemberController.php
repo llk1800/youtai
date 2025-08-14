@@ -259,6 +259,47 @@ class MemberController extends Controller
         }
     }
 
+    //找回密码
+    public function retrieve(){
+        if($_POST){
+            // 验证码验证
+            $checkcode = strtolower(post('checkcode', 'var'));
+            $email = post('email');
+            $username = post('username');
+            $password = post('password');
+            if (! $checkcode) {
+                alert_back('验证码不能为空！');
+            }
+            if ($checkcode != session('checkcode')) {
+                alert_back('验证码错误！');
+            }
+            $where = ['username' => $username];
+            $userInfo = object_to_array($this->model->checkUsername($where));
+            if(!$userInfo){
+                alert_back('该用户不存在！');
+            }
+            if(!empty($userInfo['useremail']) && $userInfo['useremail'] != $email){
+                alert_back('与注册邮箱不匹配，请联系管理员！');
+            }
+            $data = [
+                'useremail' => $email,
+                'password' => md5(md5($password))
+            ];
+            $this->model->updatePassword($where,$data);
+            alert_location('修改成功！', Url::home('member/login'), 1);
+        } else {
+            $content = parent::parser($this->htmldir . 'member/retrieve.html'); // 框架标签解析
+            $content = $this->parser->parserBefore($content); // CMS公共标签前置解析
+            $content = str_replace('{pboot:pagetitle}', $this->config('register_title') ?: '找回密码-{pboot:sitetitle}-{pboot:sitesubtitle}', $content);
+            $content = $this->parser->parserPositionLabel($content, 0, '找回密码', Url::home('member/retrieve')); // CMS当前位置标签解析
+            $content = $this->parser->parserSpecialPageSortLabel($content, - 3, '找回密码', Url::home('member/retrieve')); // 解析分类标签
+            $content = $this->parser->parserAfter($content); // CMS公共标签后置解析
+            echo $content;
+            exit();
+        }
+
+    }
+
     // 用户中心
     public function ucenter()
     {
@@ -290,9 +331,18 @@ class MemberController extends Controller
             $nickname = post('nickname');
             $useremail = post('useremail');
             $usermobile = post('usermobile');
+            $opassword = post('opassword');
             $password = post('password');
             $rpassword = post('rpassword');
             $headpic = str_replace(SITE_DIR, '', post('headpic'));
+            
+            if (! $opassword) {
+                alert_back('请输入当前密码！');
+            } else {
+                if (! $this->model->checkUsername(" password='" . md5(md5($opassword)) . "' AND id='" . session('pboot_uid') . "'")) {
+                    alert_back('您输入的当前密码不正确！');
+                }
+            }
             
             if ($useremail) { // 邮箱校验
                 if (! preg_match('/^[\w]+@[\w\.]+\.[a-zA-Z]+$/', $useremail)) {
@@ -412,10 +462,14 @@ class MemberController extends Controller
     // 发送邮件
     public function sendEmail()
     {
-        if ($this->config('register_check_code') != 2) {
-            json(0, '发送失败，后台配置非邮箱验证码模式！');
+        $retrieve = post('retrieve');
+        //$retrieve存在时为找回密码邮箱验证，不进行验证码模式判断
+        if(!$retrieve){
+            if ($this->config('register_check_code') != 2) {
+                json(0, '发送失败，后台配置非邮箱验证码模式！');
+            }
         }
-        
+
         if (time() - session('lastsend') < 10) {
             json(0, '您提交太频繁了，请稍后再试！');
         }
@@ -434,14 +488,16 @@ class MemberController extends Controller
         }
         
         // 检查邮箱注册
-        if ($this->model->checkUsername("useremail='$to' OR username='$to'")) {
-            alert_back('您输入的邮箱已被注册！');
+        if(!$retrieve) {
+            if ($this->model->checkUsername("useremail='$to' OR username='$to'")) {
+                alert_back('您输入的邮箱已被注册！');
+            }
         }
         
         $rs = false;
         if ($to) {
             session('lastsend', time()); // 记录最后提交时间
-            $mail_subject = "【PbootCMS】您有新的验证码信息，请注意查收！";
+            $mail_subject = "【" . CMSNAME . "】您有新的验证码信息，请注意查收！";
             $code = create_code(4);
             session('checkcode', strtolower($code));
             $mail_body = "您的验证码为：" . $code;

@@ -116,4 +116,14 @@ class MemberModel extends Model
     {
         return parent::table('ay_member_group')->where("gcode='$gcode'")->value('id');
     }
+
+    //未登录状态下找回密码
+    public function updatePassword($where,$data){
+        return parent::table('ay_member')->where($where)->update($data);
+    }
+
+    public function getImage()
+    {
+        return parent::table('ay_member')->column('headpic');
+    }
 }

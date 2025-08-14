@@ -52,7 +52,11 @@ class LabelController extends Controller
             if (! $name) {
                 alert_back('标签名称不能为空！');
             }
-            
+
+            if ($name && ! preg_match('/^[a-zA-Z0-9\_\/]+$/', $name)) {
+                alert_back('标签名称只允许字母、数字、下划线组成!');
+            }
+
             if (! $description) {
                 alert_back('标题描述不能为空！');
             }
@@ -119,11 +123,14 @@ class LabelController extends Controller
             $name = post('name', 'var');
             $description = post('description');
             $type = post('type');
-            
             if (! $name) {
                 alert_back('标签名称不能为空！');
             }
-            
+
+            if ($name && ! preg_match('/^[a-zA-Z0-9\_\/]+$/', $name)) {
+                alert_back('标签名称只允许字母、数字、下划线组成!');
+            }
+
             if (! $description) {
                 alert_back('标签描述不能为空！');
             }

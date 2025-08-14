@@ -19,27 +19,27 @@ class Check
         if (! is_dir(APP_PATH)) {
             error('您的系统文件无法正常读取，请检查是否上传完整！');
         }
-        
+
         // 判断自动转换状态
-        if (function_exists("get_magic_quotes_gpc") && get_magic_quotes_gpc()) {
+        if (PHP_VERSION < '7.0' && function_exists("get_magic_quotes_gpc") && get_magic_quotes_gpc()) {
             error('您的服务器环境PHP.ini中magic_quotes_gpc配置为On状态，会导致数据存储异常，请设置为Off状态或切换为更高版本PHP。');
         }
-        
+
         // 判断目录列表函数
         if (! function_exists('scandir')) {
             error('您的服务器环境PHP.ini配置中已经禁用scandir函数，会导致无法正常读取配置及模板文件，请先去除。');
         }
-        
+
         // 检查gd扩展
         if (! extension_loaded('gd')) {
             error('您的服务器环境不支持gd扩展,将无法使用验证码！');
         }
-        
+
         // 检查mbstring扩展
         if (! extension_loaded('mbstring')) {
             error('您的服务器环境不支持mbstring扩展，请先安装并启用！');
         }
-        
+
         // 检查curl扩展
         if (! extension_loaded('curl')) {
             error('您的服务器环境不支持curl扩展，请先安装并启用！');
@@ -49,8 +49,8 @@ class Check
     // 检查PHP版本
     public static function checkPHP()
     {
-        if (PHP_VERSION < '5.3') {
-            error('您服务器的PHP版本太低，本程序要求版本不小于 5.3');
+        if (version_compare(phpversion(),'7.0.0','<')) {
+            error('您服务器的PHP版本太低，本程序要求版本不小于 7.0');
         }
     }
 
@@ -78,7 +78,7 @@ class Check
             check_dir(APP_PATH . '/common', true);
             check_dir(CONF_PATH, true);
         }
-        
+
         // 目录权限判断
         if (! check_dir(RUN_PATH, true)) {
             error('缓存目录创建失败，可能写入权限不足！' . RUN_PATH);
@@ -133,5 +133,36 @@ class Check
         } elseif ($allow_os && ! in_array($user_os, $allow_os)) {
             error('本站点设置了只允许' . implode(',', $allow_os) . '访问,请使用这些操作系统！');
         }
+    }
+
+	public static function checkSession(){
+		/*$checkDir = check_dir(RUN_PATH . '/session',false);
+        if($checkDir === true){
+            $fileTime = filectime(RUN_PATH . '/session');
+            $subDay = intval((time() - $fileTime) / 86400);
+            if($subDay > 1){
+                path_delete(RUN_PATH . '/session',true);
+            }
+        } */
+		check_dir(RUN_PATH . '/archive', true);
+		$data = json_decode(trim(substr(file_get_contents(RUN_PATH . '/archive/session_ticket.php'), 15)));
+		if($data){
+            if($data->expire_time && $data->expire_time < time()){
+                ignore_user_abort(true);
+                set_time_limit(7200);
+                ob_start();
+                ob_end_flush();
+                flush();
+                $rs = path_delete(RUN_PATH . '/session');
+                if($rs){
+                    $data->expire_time = time() + 60 * 30 * 1; // 清理完成后将缓存清理时间延后30分钟
+                    create_file(RUN_PATH . '/archive/session_ticket.php', "<?php exit();?>".json_encode($data), true);
+                }
+            }
+		}else{
+			$start_time = time() + 60 * 60 * 1; // 初始化清理时间
+			$start_str = '{"expire_time":' . $start_time . '}';
+			create_file(RUN_PATH . '/archive/session_ticket.php', "<?php exit();?>" . $start_str, true);
+		}
     }
 }

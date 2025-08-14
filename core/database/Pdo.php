@@ -130,7 +130,7 @@ class Pdo implements Builder
                     $this->begin();
                 }
                 
-                $result = $this->master->exec($sql);
+                $result = $this->master->query($sql);
                 if ($result === false) {
                     $this->error($sql, 'master');
                 }
@@ -307,5 +307,10 @@ class Pdo implements Builder
         }
         // error('执行SQL发生错误！' . $err . '语句：' . $sql);
         error('执行SQL发生错误！' . $err);
+    }
+
+    //返回对象结果集
+    public function fetchQuery($obj){
+        return $obj->fetchAll();
     }
 }

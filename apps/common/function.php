@@ -184,7 +184,10 @@ function cache_config($refresh = false)
     $config_cache = RUN_PATH . '/config/' . md5('config') . '.php';
     if (! file_exists($config_cache) || $refresh) {
         $model = model('admin.system.Config');
-        Config::set(md5('config'), $model->getConfig(), false, true);
+        $config = $model->getConfig();
+        unset($config['sn']);
+        unset($config['sn_user']);
+        Config::set(md5('config'), $config, false, true);
     }
     
     // 多语言缓存

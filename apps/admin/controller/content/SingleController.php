@@ -173,6 +173,12 @@ class SingleController extends Controller
             $description = post('description');
             $status = post('status', 'int');
             
+            // 获取多图标题
+            $picstitle = post('picstitle');
+            if ($picstitle) {
+                $picstitle = implode(',', $picstitle);
+            }
+            
             if (! $title) {
                 alert_back('单页内容标题不能为空！');
             }
@@ -180,6 +186,11 @@ class SingleController extends Controller
             // 自动提起前一百个字符为描述
             if (! $description && isset($_POST['content'])) {
                 $description = escape_string(clear_html_blank(substr_both(strip_tags($_POST['content']), 0, 150)));
+            }
+            
+            // 无缩略图时，自动提取文章第一张图为缩略图
+            if (! $ico && preg_match('/<img\s+.*?src=\s?[\'|\"](.*?(\.gif|\.jpg|\.png|\.jpeg))[\'|\"].*?[\/]?>/i', decode_string($content), $srcs) && isset($srcs[1])) {
+                $ico = $srcs[1];
             }
             
             // 缩放缩略图
@@ -196,6 +207,7 @@ class SingleController extends Controller
                 'source' => $source,
                 'ico' => $ico,
                 'pics' => $pics,
+                'picstitle' => $picstitle,
                 'titlecolor' => $titlecolor,
                 'subtitle' => $subtitle,
                 'outlink' => $outlink,

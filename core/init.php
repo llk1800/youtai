@@ -108,7 +108,9 @@ define('APP_VERSION', Config::get('app_version'));
 define('RELEASE_TIME', Config::get('release_time'));
 
 // 环境检查
+Check::checkPHP();//检查php版本
 Check::checkApp(); // 检查APP配置
 Check::checkBasicDir(); // 检查基础目录
+Check::checkSession();//检查session文件夹
 Basic::setSessionHandler();// 会话处理程序选择
 

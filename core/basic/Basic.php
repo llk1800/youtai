@@ -16,6 +16,10 @@ class Basic
     // 实现类文件自动加载
     public static function autoLoad($className)
     {
+        //oss类跳过
+        if( strstr($className,'OSS')){
+            return;
+        }
         if (substr($className, 0, 4) == 'core') { // 框架类文件命名空间转换
             $class_file = CORE_PATH . '/' . str_replace('\\', '/', substr($className, 5)) . '.php';
         } elseif (substr($className, 0, 3) == 'app') { // 应用类文件命名空间转换
@@ -106,7 +110,7 @@ class Basic
         ini_set("session.use_trans_sid", 0);
         ini_set("session.use_cookies", 1);
         ini_set("session.use_only_cookies", 1);
-        session_set_cookie_params(0, SITE_DIR . '/', null, null, true);
+        session_set_cookie_params(0, SITE_DIR . '/', null, null, false);
         
         switch (Config::get('session.handler')) {
             case 'memcache':

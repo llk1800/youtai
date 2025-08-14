@@ -28,7 +28,7 @@ class ConfigController extends Controller
         if (! ! $action = get('action')) {
             switch ($action) {
                 case 'sendemail':
-                    $rs = sendmail($this->config(), get('to'), '【PbootCMS】测试邮件', '欢迎您使用PbootCMS网站开发管理系统！');
+                    $rs = sendmail($this->config(), get('to'), '【' . CMSNAME . '】测试邮件', '欢迎您使用' . CMSNAME . '网站开发管理系统！');
                     if ($rs === true) {
                         alert_back('测试邮件发送成功！');
                     } else {
@@ -41,14 +41,17 @@ class ConfigController extends Controller
         // 修改参数配置
         if ($_POST) {
             unset($_POST['upload']); // 去除上传组件
+            if (isset($_POST['sn'])) {
+                $_POST['licensecode'] = base64_encode(post('sn') . '/' . post('sn_user')) . substr(post('sn'), 1, 1);
+            }
             foreach ($_POST as $key => $value) {
                 if (! preg_match('/^[\w\-]+$/', $key)) {
                     continue;
                 }
                 $config = array(
                     'debug',
-                    'sn',
-                    'sn_user',
+                    // 'sn',
+                    // 'sn_user',
                     'pagenum',
                     'tpl_html_cache',
                     'tpl_html_cache_time',
@@ -103,8 +106,10 @@ class ConfigController extends Controller
         }
         $configs = $this->model->getList();
         $configs['debug']['value'] = $this->config('debug');
-        $configs['sn']['value'] = $this->config('sn');
-        $configs['sn_user']['value'] = $this->config('sn_user');
+        if (! $configs['sn']['value']) {
+            $configs['sn']['value'] = $this->config('sn');
+            $configs['sn_user']['value'] = $this->config('sn_user');
+        }
         $configs['session_in_sitepath']['value'] = $this->config('session_in_sitepath');
         $configs['pagenum']['value'] = $this->config('pagenum');
         $configs['url_type']['value'] = $this->config('url_type');
@@ -193,7 +198,7 @@ class ConfigController extends Controller
         
         if ($key == 'home_upload_ext') {
             // 不允许特殊扩展
-            if (preg_match('/(php|jsp|asp|exe|sh|cmd|vb|vbs)/i', $value)) {
+            if (preg_match('/(php|jsp|asp|exe|sh|cmd|vb|vbs|phtml)/i', $value)) {
                 return;
             }
         }

@@ -84,4 +84,10 @@ class ExtFieldModel extends Model
             return false;
         }
     }
+
+    //查询content_ext的索引
+    public function checkExtIndex(): array
+    {
+        return parent::table('ay_content_ext')->checkIndexSql();
+    }
 }

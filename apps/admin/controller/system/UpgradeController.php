@@ -55,6 +55,23 @@ class UpgradeController extends Controller
         $this->display('system/upgrade.html');
     }
 
+    public function checkCache(){
+        $now = time();
+        $cache = $_SESSION['check_cache'];
+        if(!$cache){
+            $_SESSION['check_cache'] = time();
+            json(1,'');
+        }else{
+            $sub = $now - $cache;
+            if($sub > 3600){
+                $_SESSION['check_cache'] = time();
+                json(1,'');
+            }else{
+                json(0,'');
+            }
+        }
+    }
+
     // 检查更新
     public function check()
     {

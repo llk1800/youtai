@@ -127,7 +127,7 @@ function get_user_os($osstr = null)
 }
 
 // 获取用户IP
-function get_user_ip()
+function get_user_ip(): string
 {
     if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
         $cip = $_SERVER['HTTP_X_FORWARDED_FOR'];
@@ -165,7 +165,7 @@ function get_url($url, $fields = array(), $UserAgent = null, $vfSSL = false)
     if ($SSL) {
         if ($vfSSL) {
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
             curl_setopt($ch, CURLOPT_CAINFO, CORE_PATH . '/cacert.pem');
         } else {
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 信任任何证书
@@ -356,18 +356,12 @@ function parse_info_tpl($info_tpl, $string, $jump_url = null, $time = 0)
             $timeout_js = '';
         }
         $tpl_content = str_replace('{js}', $timeout_js, $tpl_content);
-//         $tpl_content = str_replace('{info}', $string, $tpl_content);
-        if (strpos($string, '未匹配到本域名') !== false) {
-            $tpl_content = str_replace('{info}', '您当前域名未授权，请联系开发者获取授权！', $tpl_content);
-        } else {
-            $tpl_content = str_replace('{info}', $string, $tpl_content);
-        }
-
+        $tpl_content = str_replace('{info}', $string, $tpl_content);
         $tpl_content = str_replace('{url}', $jump_url, $tpl_content);
         $tpl_content = str_replace('{time}', $time, $tpl_content);
         $tpl_content = str_replace('{sitedir}', SITE_DIR, $tpl_content);
         $tpl_content = str_replace('{coredir}', CORE_DIR, $tpl_content);
-        $tpl_content = str_replace('{appversion}', APP_VERSION, $tpl_content);
+        $tpl_content = str_replace('{appversion}', APP_VERSION . '-' . RELEASE_TIME, $tpl_content);
         $tpl_content = str_replace('{serveros}', PHP_OS, $tpl_content);
         $tpl_content = str_replace('{serversoft}', $_SERVER['SERVER_SOFTWARE'], $tpl_content);
         return $tpl_content;
@@ -390,7 +384,9 @@ function escape_string($string)
             $string->$key = escape_string($value);
         }
     } else { // 字符串处理
+        ## 防止跨站脚本攻击 (XSS)
         $string = htmlspecialchars(trim($string), ENT_QUOTES, 'UTF-8');
+        ## 防止SQL注入攻击
         $string = addslashes($string);
     }
     return $string;
@@ -412,8 +408,8 @@ function decode_string($string)
     } else { // 字符串处理
         $string = stripcslashes($string);
         $string = htmlspecialchars_decode($string, ENT_QUOTES);
+        $string = preg_replace_r('/pboot:if/i', 'pboot@if', $string); // 避免解码绕过问题
     }
-    $string = preg_replace_r('/pboot:if/i', 'pboot@if', $string); // 避免解码绕过问题
     return $string;
 }
 
@@ -475,7 +471,11 @@ function hump_to_underline($string)
 // 转换对象为数组
 function object_to_array($object)
 {
-    return json_decode(json_encode($object), true);
+    if($object === null){
+        return [];
+    }else{
+        return json_decode(json_encode($object),true);
+    }
 }
 
 // 转换数组为对象
